@@ -1,0 +1,273 @@
+---
+import Base from "../layouts/Base.astro";
+import Section from "./Section.astro";
+import Tags from "./Tags.astro";
+import {
+  profile,
+  about,
+  highlights,
+  projects,
+  caseStudies,
+  experience,
+  education,
+  skills,
+  testimonial,
+  ui,
+  type Lang,
+} from "../data/profile";
+
+type Props = { lang: Lang };
+const { lang } = Astro.props;
+
+const otherLang: Lang = lang === "pt" ? "en" : "pt";
+const otherHref = otherLang === "pt" ? "/" : "/en/";
+const s = ui.sections;
+
+const nav = [
+  { href: "#sobre", label: ui.nav.about[lang] },
+  { href: "#projetos", label: ui.nav.projects[lang] },
+  { href: "#casos", label: ui.nav.cases[lang] },
+  { href: "#experiencia", label: ui.nav.experience[lang] },
+  { href: "#contato", label: ui.nav.contact[lang] },
+];
+
+const socials = [
+  { href: profile.links.github, label: "GitHub" },
+  { href: profile.links.linkedin, label: "LinkedIn" },
+  { href: profile.links.npm, label: "npm" },
+  { href: profile.links.youtube, label: "YouTube" },
+].filter((s) => s.href);
+
+// "2 mil+" vira { count: 2, suffix: " mil+" } para o contador animar só o número
+const stats = highlights.map((h) => {
+  const value = h.value[lang];
+  const [, count = "", suffix = value] = value.match(/^(\d+)(.*)$/) ?? [];
+  return { label: h.label[lang], count, suffix };
+});
+
+const delay = (i: number, step = 90) => `--delay: ${i * step}ms`;
+
+const card =
+  "rounded-2xl border border-[var(--border)] bg-[var(--surface)] transition duration-300 hover:-translate-y-1 hover:border-[var(--accent)] hover:shadow-[0_12px_40px_-12px_var(--accent-soft)]";
+const link = "underline decoration-[var(--accent)] decoration-2 underline-offset-4 hover:text-[var(--accent)]";
+---
+
+<Base lang={lang}>
+  <header class="sticky top-0 z-10 border-b border-[var(--border)] bg-[var(--bg)]/85 backdrop-blur">
+    <div class="mx-auto flex h-14 max-w-5xl items-center justify-between px-4 sm:px-6">
+      <a href="#" class="font-bold tracking-tight">guilherme<span class="text-[var(--accent)]">.dev</span></a>
+      <nav aria-label={lang === "pt" ? "Seções" : "Sections"} class="flex items-center gap-1">
+        <ul class="hidden gap-1 text-sm text-[var(--muted)] md:flex">
+          {nav.map((n) => (
+            <li><a href={n.href} class="rounded-md px-3 py-1.5 transition-colors hover:text-[var(--text)]">{n.label}</a></li>
+          ))}
+        </ul>
+        <a
+          href={otherHref}
+          hreflang={otherLang === "pt" ? "pt-BR" : "en"}
+          lang={otherLang === "pt" ? "pt-BR" : "en"}
+          aria-label={ui.switchLang[lang]}
+          title={ui.switchLang[lang]}
+          class="ml-2 grid h-9 place-items-center rounded-md border border-[var(--border)] px-2.5 font-mono text-xs font-semibold transition hover:border-[var(--accent)] hover:text-[var(--accent)]"
+        >
+          {otherLang.toUpperCase()}
+        </a>
+        <button
+          id="theme-toggle"
+          type="button"
+          aria-label={ui.toggleTheme[lang]}
+          class="grid size-9 place-items-center rounded-md border border-[var(--border)] transition hover:rotate-12 hover:border-[var(--accent)]"
+        >
+          <svg class="size-4 dark:hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+          <svg class="hidden size-4 dark:block" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="mx-auto max-w-5xl overflow-x-clip px-4 sm:px-6">
+    <!-- Hero -->
+    <section class="relative flex flex-col-reverse items-start gap-10 py-16 sm:py-24 md:flex-row md:items-center">
+      <div
+        class="hero-glow pointer-events-none absolute top-0 -right-10 -z-10 size-[32rem] bg-[radial-gradient(circle,var(--accent)_0%,transparent_65%)] opacity-30"
+        aria-hidden="true"
+      />
+      <div class="flex-1">
+        <p data-reveal style={delay(0)} class="font-mono text-sm text-[var(--accent)]">{ui.hello[lang]}</p>
+        <h1 data-reveal style={delay(1)} class="mt-2 text-4xl font-extrabold tracking-tight sm:text-6xl">{profile.name}</h1>
+        <p data-reveal style={delay(2)} class="mt-2 text-xl font-semibold text-[var(--muted)] sm:text-2xl">{profile.role[lang]}</p>
+        <p data-reveal style={delay(3)} class="mt-6 max-w-xl text-lg leading-relaxed">{profile.tagline[lang]}</p>
+        <p data-reveal style={delay(4)} class="mt-3 text-sm text-[var(--muted)]">📍 {profile.location[lang]}</p>
+        <div data-reveal style={delay(5)} class="mt-8 flex flex-wrap gap-3">
+          <a href="#contato" class="rounded-lg bg-[var(--accent)] px-5 py-2.5 font-semibold text-white transition hover:-translate-y-0.5 hover:brightness-110 dark:text-[#0c0a14]">{ui.talkToMe[lang]}</a>
+          {profile.cv && (
+            <a href={profile.cv} download class="rounded-lg border border-[var(--border)] px-5 py-2.5 font-semibold transition hover:-translate-y-0.5 hover:border-[var(--accent)]">{ui.downloadCv[lang]}</a>
+          )}
+          {socials.map((s) => (
+            <a href={s.href} target="_blank" rel="noopener" class="rounded-lg border border-[var(--border)] px-4 py-2.5 font-medium transition hover:-translate-y-0.5 hover:border-[var(--accent)]">{s.label}</a>
+          ))}
+        </div>
+      </div>
+      <div data-reveal style={delay(2)}>
+        <img
+          src={profile.avatar}
+          alt={`${ui.photoOf[lang]} ${profile.name}`}
+          width="176"
+          height="176"
+          class="avatar-float size-32 rounded-full border-4 border-[var(--accent-soft)] object-cover sm:size-44"
+        />
+      </div>
+    </section>
+
+    <ul class="grid grid-cols-2 gap-3 sm:grid-cols-4">
+      {stats.map((st, i) => (
+        <li data-reveal style={delay(i)} class={`${card} p-5`}>
+          <p class="text-3xl font-extrabold text-[var(--accent)]">
+            <span data-count={st.count}>{st.count}</span>{st.suffix}
+          </p>
+          <p class="mt-1 text-sm text-[var(--muted)]">{st.label}</p>
+        </li>
+      ))}
+    </ul>
+
+    <Section id="sobre" eyebrow={s.about.eyebrow[lang]} title={s.about.title[lang]}>
+      <div class="grid gap-10 md:grid-cols-[3fr_2fr]">
+        <div class="space-y-4 leading-relaxed text-[var(--muted)]">
+          {about[lang].map((p, i) => <p data-reveal style={delay(i)}>{p}</p>)}
+        </div>
+        <ul class="space-y-5">
+          {skills.map((sk, i) => (
+            <li data-reveal style={delay(i)}>
+              <p class="mb-2 text-sm font-semibold">{sk.group[lang]}</p>
+              <Tags items={sk.items} />
+            </li>
+          ))}
+        </ul>
+      </div>
+    </Section>
+
+    <Section id="projetos" eyebrow={s.projects.eyebrow[lang]} title={s.projects.title[lang]} intro={s.projects.intro[lang]}>
+      <ul class="grid gap-4 sm:grid-cols-2">
+        {projects.map((p, i) => (
+          <li data-reveal style={delay(i % 2)} class={`${card} flex flex-col p-6`}>
+            <div class="flex items-start justify-between gap-3">
+              <h3 class="font-mono font-semibold">{p.name}</h3>
+              {p.badge && <span class="shrink-0 rounded-full bg-[var(--accent-soft)] px-2.5 py-0.5 text-xs font-medium text-[var(--accent)]">{p.badge[lang]}</span>}
+            </div>
+            <p class="mt-3 flex-1 leading-relaxed text-[var(--muted)]">{p.description[lang]}</p>
+            <div class="mt-5"><Tags items={p.stack} /></div>
+            {(p.repo || p.npm) && (
+              <div class="mt-4 flex gap-4 text-sm font-medium">
+                {p.repo && <a href={p.repo} target="_blank" rel="noopener" class={link}>{ui.code[lang]}</a>}
+                {p.npm && <a href={p.npm} target="_blank" rel="noopener" class={link}>npm</a>}
+              </div>
+            )}
+          </li>
+        ))}
+      </ul>
+    </Section>
+
+    <Section id="casos" eyebrow={s.cases.eyebrow[lang]} title={s.cases.title[lang]} intro={s.cases.intro[lang]}>
+      <ul class="grid gap-4 md:grid-cols-2">
+        {caseStudies.map((c, i) => (
+          <li data-reveal style={delay(i % 2)} class={`${card} p-6`}>
+            <h3 class="text-lg font-semibold">{c.title[lang]}</h3>
+            <p class="mt-3 leading-relaxed text-[var(--muted)]">{c.text[lang]}</p>
+            <div class="mt-5"><Tags items={c.stack} /></div>
+          </li>
+        ))}
+      </ul>
+    </Section>
+
+    <Section id="experiencia" eyebrow={s.experience.eyebrow[lang]} title={s.experience.title[lang]}>
+      <ol class="relative space-y-8 border-l-2 border-[var(--border)] pl-6 sm:pl-8">
+        {experience.map((job, i) => (
+          <li data-reveal class="relative">
+            <span
+              class:list={[
+                "absolute top-1.5 -left-[31px] size-3 rounded-full border-2 border-[var(--accent)] sm:-left-[39px]",
+                i === 0 ? "animate-pulse bg-[var(--accent)]" : "bg-[var(--bg)]",
+              ]}
+              aria-hidden="true"
+            />
+            <p class="font-mono text-xs text-[var(--muted)]">{job.period[lang]} · {job.place[lang]}</p>
+            <h3 class="mt-1 font-semibold">{job.role[lang]}</h3>
+            <p class="text-[var(--accent)]">{job.company}</p>
+            <p class="mt-2 max-w-2xl leading-relaxed text-[var(--muted)]">{job.summary[lang]}</p>
+            <div class="mt-3"><Tags items={job.stack} /></div>
+          </li>
+        ))}
+      </ol>
+
+      <div data-reveal class={`${card} mt-12 p-6`}>
+        <p class="font-mono text-xs text-[var(--muted)]">{ui.education[lang]} · {education.period}</p>
+        <h3 class="mt-1 font-semibold">{education.course[lang]}</h3>
+        <p class="text-[var(--accent)]">{education.school[lang]}</p>
+      </div>
+    </Section>
+
+    <figure data-reveal class="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-8 sm:p-10">
+      <p class="font-mono text-sm text-[var(--accent)]">{ui.testimonialEyebrow[lang]}</p>
+      <blockquote class="mt-4 text-lg leading-relaxed sm:text-xl">“{testimonial.quote[lang]}”</blockquote>
+      <figcaption class="mt-5 text-sm">
+        <span class="font-semibold">{testimonial.author}</span>
+        <span class="text-[var(--muted)]"> · {testimonial.role[lang]} · {ui.testimonialSource[lang]}</span>
+      </figcaption>
+    </figure>
+
+    <Section id="contato" eyebrow={s.contact.eyebrow[lang]} title={s.contact.title[lang]}>
+      <p data-reveal class="max-w-xl text-lg leading-relaxed text-[var(--muted)]">{s.contact.text[lang]}</p>
+      <div data-reveal style={delay(1)} class="mt-8 flex flex-wrap gap-3">
+        <a href={`mailto:${profile.email}`} class="rounded-lg bg-[var(--accent)] px-5 py-2.5 font-semibold text-white transition hover:-translate-y-0.5 hover:brightness-110 dark:text-[#0c0a14]">{profile.email}</a>
+        <a href={profile.links.linkedin} target="_blank" rel="noopener" class="rounded-lg border border-[var(--border)] px-5 py-2.5 font-semibold transition hover:-translate-y-0.5 hover:border-[var(--accent)]">LinkedIn</a>
+      </div>
+    </Section>
+  </main>
+
+  <footer class="border-t border-[var(--border)] py-8 text-center text-sm text-[var(--muted)]">
+    © {new Date().getFullYear()} {profile.name} · {ui.footer[lang]}
+  </footer>
+
+  <script>
+    const toggle = document.getElementById("theme-toggle");
+    toggle?.addEventListener("click", () => {
+      const root = document.documentElement;
+      const next = root.dataset.theme === "dark" ? "light" : "dark";
+      root.dataset.theme = next;
+      try {
+        localStorage.setItem("theme", next);
+      } catch {}
+    });
+
+    const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    const countUp = (el: HTMLElement) => {
+      const target = Number(el.dataset.count);
+      if (reduceMotion || !target) return;
+      const duration = 1200;
+      const start = performance.now();
+      const tick = (now: number) => {
+        const t = Math.min((now - start) / duration, 1);
+        el.textContent = String(Math.round(target * (1 - Math.pow(1 - t, 3))));
+        if (t < 1) requestAnimationFrame(tick);
+      };
+      el.textContent = "0";
+      requestAnimationFrame(tick);
+    };
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          const el = entry.target as HTMLElement;
+          el.classList.add("is-visible");
+          el.querySelectorAll<HTMLElement>("[data-count]").forEach(countUp);
+          observer.unobserve(el);
+        }
+      },
+      { threshold: 0.15, rootMargin: "0px 0px -40px 0px" },
+    );
+
+    document.querySelectorAll("[data-reveal]").forEach((el) => observer.observe(el));
+  </script>
+</Base>
